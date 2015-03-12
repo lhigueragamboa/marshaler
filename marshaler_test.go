@@ -151,7 +151,7 @@ func TestHTTPEquivError(t *testing.T) {
 	if http.StatusServiceUnavailable != w.StatusCode {
 		t.Fatal(w.StatusCode)
 	}
-	if "{\"description\":\"foo\",\"error\":\"tigertonic.ServiceUnavailable\"}\n" != w.Body.String() {
+	if "{\"description\":\"foo\",\"error\":\"marshaler.ServiceUnavailable\"}\n" != w.Body.String() {
 		t.Fatal(w.Body.String())
 	}
 }
