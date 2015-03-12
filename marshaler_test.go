@@ -9,63 +9,63 @@ import (
 	"testing"
 )
 
-func TestMarshaledCalm(t *testing.T) {
-	Marshaled(func(u *url.URL, h http.Header, rq *testRequest) (int, http.Header, *testResponse, error) {
+func TestHandlerCalm(t *testing.T) {
+	Handler(func(u *url.URL, h http.Header, rq *testRequest) (int, http.Header, *testResponse, error) {
 		return 0, http.Header{}, nil, nil
 	})
 }
 
-func TestMarshaledPanicNumIn(t *testing.T) {
-	testMarshaledPanic(func() {}, t)
-	testMarshaledPanic(func(u interface{}) {}, t)
-	testMarshaledPanic(func(u, h interface{}) {}, t)
-	testMarshaledPanic(func(u, h, rq, foo, bar interface{}) {}, t)
+func TestHandlerPanicNumIn(t *testing.T) {
+	testHandlerPanic(func() {}, t)
+	testHandlerPanic(func(u interface{}) {}, t)
+	testHandlerPanic(func(u, h interface{}) {}, t)
+	testHandlerPanic(func(u, h, rq, foo, bar interface{}) {}, t)
 }
 
-func TestMarshaledPanicIn0(t *testing.T) {
-	testMarshaledPanic(func(u, h, rq interface{}) {}, t)
+func TestHandlerPanicIn0(t *testing.T) {
+	testHandlerPanic(func(u, h, rq interface{}) {}, t)
 }
 
-func TestMarshaledPanicIn1(t *testing.T) {
-	testMarshaledPanic(func(u *url.URL, h, rq interface{}) {}, t)
+func TestHandlerPanicIn1(t *testing.T) {
+	testHandlerPanic(func(u *url.URL, h, rq interface{}) {}, t)
 }
 
-func TestMarshaledPanicNumOut(t *testing.T) {
-	testMarshaledPanic(func(u *url.URL, h http.Header) {}, t)
-	testMarshaledPanic(func(u *url.URL, h http.Header) int {
+func TestHandlerPanicNumOut(t *testing.T) {
+	testHandlerPanic(func(u *url.URL, h http.Header) {}, t)
+	testHandlerPanic(func(u *url.URL, h http.Header) int {
 		return 0
 	}, t)
-	testMarshaledPanic(func(u *url.URL, h http.Header) (int, int) {
+	testHandlerPanic(func(u *url.URL, h http.Header) (int, int) {
 		return 0, 0
 	}, t)
-	testMarshaledPanic(func(u *url.URL, h http.Header) (int, int, int) {
+	testHandlerPanic(func(u *url.URL, h http.Header) (int, int, int) {
 		return 0, 0, 0
 	}, t)
-	testMarshaledPanic(func(u *url.URL, h http.Header) (int, int, int, int, int) {
+	testHandlerPanic(func(u *url.URL, h http.Header) (int, int, int, int, int) {
 		return 0, 0, 0, 0, 0
 	}, t)
 }
 
-func TestMarshaledPanicOut0(t *testing.T) {
-	testMarshaledPanic(func(u *url.URL, h http.Header, rq *testRequest) (string, int, int, int) {
+func TestHandlerPanicOut0(t *testing.T) {
+	testHandlerPanic(func(u *url.URL, h http.Header, rq *testRequest) (string, int, int, int) {
 		return "", 0, 0, 0
 	}, t)
 }
 
-func TestMarshaledPanicOut1(t *testing.T) {
-	testMarshaledPanic(func(u *url.URL, h http.Header, rq *testRequest) (int, int, int, int) {
+func TestHandlerPanicOut1(t *testing.T) {
+	testHandlerPanic(func(u *url.URL, h http.Header, rq *testRequest) (int, int, int, int) {
 		return 0, 0, 0, 0
 	}, t)
 }
 
-func TestMarshaledPanicOut2(t *testing.T) {
-	testMarshaledPanic(func(u *url.URL, h http.Header, rq *testRequest) (int, http.Header, int, int) {
+func TestHandlerPanicOut2(t *testing.T) {
+	testHandlerPanic(func(u *url.URL, h http.Header, rq *testRequest) (int, http.Header, int, int) {
 		return 0, http.Header{}, 0, 0
 	}, t)
 }
 
-func TestMarshaledPanicOut3(t *testing.T) {
-	testMarshaledPanic(func(u *url.URL, h http.Header, rq *testRequest) (int, http.Header, *testResponse, int) {
+func TestHandlerPanicOut3(t *testing.T) {
+	testHandlerPanic(func(u *url.URL, h http.Header, rq *testRequest) (int, http.Header, *testResponse, int) {
 		return 0, http.Header{}, nil, 0
 	}, t)
 }
@@ -74,7 +74,7 @@ func TestNotAcceptable(t *testing.T) {
 	w := &testResponseWriter{}
 	r, _ := http.NewRequest("GET", "http://example.com/foo", nil)
 	r.Header.Set("Accept", "text/plain")
-	Marshaled(func(u *url.URL, h http.Header, rq *testRequest) (int, http.Header, *testResponse, error) {
+	Handler(func(u *url.URL, h http.Header, rq *testRequest) (int, http.Header, *testResponse, error) {
 		return http.StatusNoContent, nil, nil, nil
 	}).ServeHTTP(w, r)
 	if http.StatusNotAcceptable != w.StatusCode {
@@ -86,7 +86,7 @@ func TestUnsupportedMediaType(t *testing.T) {
 	w := &testResponseWriter{}
 	r, _ := http.NewRequest("POST", "http://example.com/foo", nil)
 	r.Header.Set("Accept", "application/json")
-	Marshaled(func(u *url.URL, h http.Header, rq *testRequest) (int, http.Header, *testResponse, error) {
+	Handler(func(u *url.URL, h http.Header, rq *testRequest) (int, http.Header, *testResponse, error) {
 		return http.StatusNoContent, nil, nil, nil
 	}).ServeHTTP(w, r)
 	if http.StatusUnsupportedMediaType != w.StatusCode {
@@ -99,7 +99,7 @@ func TestBadRequest(t *testing.T) {
 	r, _ := http.NewRequest("POST", "http://example.com/foo", bytes.NewBufferString(""))
 	r.Header.Set("Accept", "application/json")
 	r.Header.Set("Content-Type", "application/json")
-	Marshaled(func(u *url.URL, h http.Header, rq *testRequest) (int, http.Header, *testResponse, error) {
+	Handler(func(u *url.URL, h http.Header, rq *testRequest) (int, http.Header, *testResponse, error) {
 		return http.StatusNoContent, nil, nil, nil
 	}).ServeHTTP(w, r)
 	if http.StatusBadRequest != w.StatusCode {
@@ -115,7 +115,7 @@ func TestBadRequestSyntaxError(t *testing.T) {
 	r, _ := http.NewRequest("POST", "http://example.com/foo", bytes.NewBufferString("}"))
 	r.Header.Set("Accept", "application/json")
 	r.Header.Set("Content-Type", "application/json")
-	Marshaled(func(u *url.URL, h http.Header, rq *testRequest) (int, http.Header, *testResponse, error) {
+	Handler(func(u *url.URL, h http.Header, rq *testRequest) (int, http.Header, *testResponse, error) {
 		return http.StatusNoContent, nil, nil, nil
 	}).ServeHTTP(w, r)
 	if http.StatusBadRequest != w.StatusCode {
@@ -130,7 +130,7 @@ func TestInternalServerError(t *testing.T) {
 	w := &testResponseWriter{}
 	r, _ := http.NewRequest("GET", "http://example.com/foo", nil)
 	r.Header.Set("Accept", "application/json")
-	Marshaled(func(u *url.URL, h http.Header) (int, http.Header, *testResponse, error) {
+	Handler(func(u *url.URL, h http.Header) (int, http.Header, *testResponse, error) {
 		return 0, nil, nil, errors.New("foo")
 	}).ServeHTTP(w, r)
 	if http.StatusInternalServerError != w.StatusCode {
@@ -145,7 +145,7 @@ func TestHTTPEquivError(t *testing.T) {
 	w := &testResponseWriter{}
 	r, _ := http.NewRequest("GET", "http://example.com/foo", nil)
 	r.Header.Set("Accept", "application/json")
-	Marshaled(func(u *url.URL, h http.Header) (int, http.Header, *testResponse, error) {
+	Handler(func(u *url.URL, h http.Header) (int, http.Header, *testResponse, error) {
 		return 0, nil, nil, ServiceUnavailable{errors.New("foo")}
 	}).ServeHTTP(w, r)
 	if http.StatusServiceUnavailable != w.StatusCode {
@@ -162,7 +162,7 @@ func TestSnakeCaseHTTPEquivError(t *testing.T) {
 	w := &testResponseWriter{}
 	r, _ := http.NewRequest("GET", "http://example.com/foo", nil)
 	r.Header.Set("Accept", "application/json")
-	Marshaled(func(u *url.URL, h http.Header) (int, http.Header, *testResponse, error) {
+	Handler(func(u *url.URL, h http.Header) (int, http.Header, *testResponse, error) {
 		return 0, nil, nil, ServiceUnavailable{errors.New("foo")}
 	}).ServeHTTP(w, r)
 	if http.StatusServiceUnavailable != w.StatusCode {
@@ -177,7 +177,7 @@ func TestNamedError(t *testing.T) {
 	w := &testResponseWriter{}
 	r, _ := http.NewRequest("GET", "http://example.com/foo", nil)
 	r.Header.Set("Accept", "application/json")
-	Marshaled(func(u *url.URL, h http.Header) (int, http.Header, *testResponse, error) {
+	Handler(func(u *url.URL, h http.Header) (int, http.Header, *testResponse, error) {
 		return 0, nil, nil, testNamedError("foo")
 	}).ServeHTTP(w, r)
 	if http.StatusInternalServerError != w.StatusCode {
@@ -192,7 +192,7 @@ func TestNoContent(t *testing.T) {
 	w := &testResponseWriter{}
 	r, _ := http.NewRequest("GET", "http://example.com/foo", nil)
 	r.Header.Set("Accept", "application/json")
-	Marshaled(func(u *url.URL, h http.Header, rq *testRequest) (int, http.Header, *testResponse, error) {
+	Handler(func(u *url.URL, h http.Header, rq *testRequest) (int, http.Header, *testResponse, error) {
 		return http.StatusNoContent, nil, nil, nil
 	}).ServeHTTP(w, r)
 	if http.StatusNoContent != w.StatusCode {
@@ -204,7 +204,7 @@ func TestNilContent(t *testing.T) {
 	w := &testResponseWriter{}
 	r, _ := http.NewRequest("GET", "http://example.com/foo", nil)
 	r.Header.Set("Accept", "application/json")
-	Marshaled(func(u *url.URL, h http.Header, rq *testRequest) (int, http.Header, *testResponse, error) {
+	Handler(func(u *url.URL, h http.Header, rq *testRequest) (int, http.Header, *testResponse, error) {
 		return http.StatusOK, nil, nil, nil
 	}).ServeHTTP(w, r)
 	if http.StatusOK != w.StatusCode {
@@ -219,7 +219,7 @@ func TestHeader(t *testing.T) {
 	w := &testResponseWriter{}
 	r, _ := http.NewRequest("GET", "http://example.com/foo", nil)
 	r.Header.Set("Accept", "application/json")
-	Marshaled(func(u *url.URL, h http.Header, rq *testRequest) (int, http.Header, *testResponse, error) {
+	Handler(func(u *url.URL, h http.Header, rq *testRequest) (int, http.Header, *testResponse, error) {
 		return http.StatusNoContent, map[string][]string{
 			"Foo": {"bar"},
 		}, nil, nil
@@ -234,7 +234,7 @@ func TestBody(t *testing.T) {
 	r, _ := http.NewRequest("POST", "http://example.com/foo", bytes.NewBufferString("{\"foo\":\"bar\"}"))
 	r.Header.Set("Accept", "application/json")
 	r.Header.Set("Content-Type", "application/json")
-	Marshaled(func(u *url.URL, h http.Header, rq *testRequest) (int, http.Header, *testResponse, error) {
+	Handler(func(u *url.URL, h http.Header, rq *testRequest) (int, http.Header, *testResponse, error) {
 		if "bar" != rq.Foo {
 			t.Fatal(rq.Foo)
 		}
@@ -248,7 +248,7 @@ func TestBody(t *testing.T) {
 func TestEmptyBody(t *testing.T) {
 	w := &testResponseWriter{}
 	r, _ := http.NewRequest("GET", "http://example.com/foo", nil)
-	Marshaled(func(*url.URL, http.Header, interface{}) (int, http.Header, interface{}, error) {
+	Handler(func(*url.URL, http.Header, interface{}) (int, http.Header, interface{}, error) {
 		return http.StatusOK, nil, nil, nil
 	}).ServeHTTP(w, r)
 	if "" != w.Body.String() {
@@ -256,10 +256,10 @@ func TestEmptyBody(t *testing.T) {
 	}
 }
 
-func TestMarshaledShortGET(t *testing.T) {
+func TestHandlerShortGET(t *testing.T) {
 	w := &testResponseWriter{}
 	r, _ := http.NewRequest("GET", "http://example.com/foo", nil)
-	Marshaled(func(*url.URL, http.Header) (int, http.Header, interface{}, error) {
+	Handler(func(*url.URL, http.Header) (int, http.Header, interface{}, error) {
 		return http.StatusOK, nil, nil, nil
 	}).ServeHTTP(w, r)
 	if "" != w.Body.String() {
@@ -272,7 +272,7 @@ func Test500OnMisconfiguredPost(t *testing.T) {
 	r, _ := http.NewRequest("POST", "http://example.com/foo", bytes.NewBufferString("anything"))
 	r.Header.Set("Accept", "application/json")
 	r.Header.Set("Content-Type", "application/json")
-	Marshaled(func(u *url.URL, h http.Header) (int, http.Header, *testResponse, error) {
+	Handler(func(u *url.URL, h http.Header) (int, http.Header, *testResponse, error) {
 		return http.StatusOK, nil, &testResponse{"bar"}, nil
 	}).ServeHTTP(w, r)
 	if http.StatusInternalServerError != w.StatusCode {
@@ -285,7 +285,7 @@ func TestNonPointerMapBody(t *testing.T) {
 	r, _ := http.NewRequest("POST", "http://example.com/foo", bytes.NewBufferString(`{"a": "b"}`))
 	r.Header.Set("Accept", "application/json")
 	r.Header.Set("Content-Type", "application/json")
-	Logged(Marshaled(func(u *url.URL, h http.Header, m map[string]string) (int, http.Header, string, error) {
+	Logged(Handler(func(u *url.URL, h http.Header, m map[string]string) (int, http.Header, string, error) {
 		return http.StatusOK, nil, m["a"], nil
 	}), nil).ServeHTTP(w, r)
 	if http.StatusOK != w.StatusCode {
@@ -303,7 +303,7 @@ func TestNonPointerSliceBody(t *testing.T) {
 	r, _ := http.NewRequest("POST", "http://example.com/foo", bytes.NewBufferString(`["a", "b", "c"]`))
 	r.Header.Set("Accept", "application/json")
 	r.Header.Set("Content-Type", "application/json")
-	Logged(Marshaled(func(u *url.URL, h http.Header, s []string) (int, http.Header, string, error) {
+	Logged(Handler(func(u *url.URL, h http.Header, s []string) (int, http.Header, string, error) {
 		return http.StatusOK, nil, s[1], nil
 	}), nil).ServeHTTP(w, r)
 	if http.StatusOK != w.StatusCode {
@@ -316,7 +316,7 @@ func TestNonPointerSliceBody(t *testing.T) {
 	}
 }
 
-func testMarshaledPanic(i interface{}, t *testing.T) {
+func testHandlerPanic(i interface{}, t *testing.T) {
 	defer func() {
 		err := recover()
 		if nil == err {
@@ -326,7 +326,7 @@ func testMarshaledPanic(i interface{}, t *testing.T) {
 			t.Error(err)
 		}
 	}()
-	Marshaled(i)
+	Handler(i)
 }
 
 type testNamedError string

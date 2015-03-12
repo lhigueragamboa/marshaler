@@ -16,13 +16,13 @@ type Marshaler struct {
 	v reflect.Value
 }
 
-// Marshaled returns an http.Handler that implements its ServeHTTP method by
+// Handler returns an http.Handler that implements its ServeHTTP method by
 // calling the given function, the signature of which must be
 //
 //     func(*url.URL, http.Header, *Request) (int, http.Header, *Response)
 //
 // where Request and Response may be any struct type of your choosing.
-func Marshaled(i interface{}) *Marshaler {
+func Handler(i interface{}) *Marshaler {
 	t := reflect.TypeOf(i)
 	if reflect.Func != t.Kind() {
 		panic(NewMarshalerError("kind was %v, not Func", t.Kind()))
