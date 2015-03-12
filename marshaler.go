@@ -156,13 +156,6 @@ func (m *Marshaler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			reflect.ValueOf(r.Header),
 			rq,
 		})
-	case 4:
-		out = m.v.Call([]reflect.Value{
-			reflect.ValueOf(r.URL),
-			reflect.ValueOf(r.Header),
-			rq,
-			reflect.ValueOf(Context(r)),
-		})
 	default:
 		panic(m.v.Type())
 	}
